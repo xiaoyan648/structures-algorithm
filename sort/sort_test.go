@@ -42,7 +42,7 @@ func TestInsertSort(t *testing.T) {
 func TestMergeSort(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			MergeSort(tt.args.ints)
+			MergeSort2(tt.args.ints)
 			assert.Equal(t, tt.want, tt.args.ints)
 		})
 	}
@@ -51,18 +51,43 @@ func TestMergeSort(t *testing.T) {
 func TestQuickSort(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			QuickSort(tt.args.ints)
+			QuickSort2(tt.args.ints)
 			assert.Equal(t, tt.want, tt.args.ints)
 		})
 	}
 }
 
+func TestA(t *testing.T) {
+	// ints := []int{3, 7, 8, 4, 3, 5, 2, 6}
+	ints := []int{5, 3, 6, 10, 2, 7, 1, 6}
+
+	i, j := 0, len(ints)-1
+
+	pivot := ints[j] // 选择最右边
+	left, right := i, j-1
+
+	for left <= right {
+		if ints[left] < pivot {
+			left++
+		} else {
+			ints[left], ints[right] = ints[right], ints[left]
+			t.Logf(" swap: %v", ints)
+			right--
+		}
+	}
+
+	// pivot放到正确位置
+	ints[left], ints[j] = ints[j], ints[left]
+	t.Logf("after partition: %v", ints)
+}
+
 func TestTheKLargest(t *testing.T) {
 	for _, tt := range tests {
+
 		t.Run(tt.name, func(t *testing.T) {
 			gotV := FindKthLargest(tt.args.ints, 4)
 			if gotV != -1 {
-				assert.Equal(t, tt.want[4], gotV)
+				assert.Equal(t, tt.want[3], gotV)
 			}
 		})
 	}

@@ -6,6 +6,7 @@ import (
 )
 
 // sort.Ints() // 标准库 快排、二分查找
+// O(n^2)
 
 func BubbleSort(ints []int) {
 	for i := 0; i < len(ints); i++ {
@@ -18,7 +19,11 @@ func BubbleSort(ints []int) {
 }
 
 func InsertSort(ints []int) {
-	for i := 0; i < len(ints); i++ {
+	if len(ints) <= 1 {
+		return
+	}
+
+	for i := 1; i < len(ints); i++ {
 		temp := ints[i]
 
 		j := i - 1
@@ -28,6 +33,55 @@ func InsertSort(ints []int) {
 
 		ints[j+1] = temp
 	}
+}
+
+// MergeSort2 is an alternative implementation of MergeSort
+// O(N*Log^n)
+
+func MergeSort2(ints []int) {
+	if len(ints) <= 1 {
+		return
+	}
+
+	var coreSort func(i, j int)
+	coreSort = func(i, j int) {
+		if i >= j {
+			return
+		}
+
+		mid := (i + j) / 2
+		coreSort(i, mid)
+		coreSort(mid+1, j)
+
+		merge2(ints[i:j+1], ints[i:mid+1], ints[mid+1:j+1])
+	}
+
+	// actually run the recursive sort
+	coreSort(0, len(ints)-1)
+}
+
+func merge2(ints, l, r []int) {
+	temp := make([]int, 0, len(ints))
+
+	i, j := 0, 0
+	for i < len(l) && j < len(r) {
+		if l[i] < r[j] {
+			temp = append(temp, l[i])
+			i++
+		} else {
+			temp = append(temp, r[j])
+			j++
+		}
+	}
+
+	if i < len(l) {
+		temp = append(temp, l[i:]...)
+	}
+	if j < len(r) {
+		temp = append(temp, r[j:]...)
+	}
+
+	copy(ints, temp)
 }
 
 // MergeSort(i,j) = Merge(MergeSort(i,mid), MergeSort(mid+1,j))
@@ -77,8 +131,53 @@ func merge(result []int, p1, p2 []int) {
 	}
 
 	// cover in result
-	result = result[:0]
-	_ = append(result, temp...)
+	copy(result, temp)
+}
+
+// QuickSort O(n log n) average time complexity
+func QuickSort2(ints []int) {
+	if len(ints) <= 1 {
+		return
+	}
+
+	var qsfunc func(i, j int)
+	qsfunc = func(i, j int) {
+		if i >= j {
+			return
+		}
+
+		// 找到中间值，让分区跟均匀
+		mid := (i + j) / 2
+		if ints[i] > ints[j] {
+			ints[i], ints[j] = ints[j], ints[i]
+		}
+		if ints[mid] < ints[i] {
+			ints[mid], ints[i] = ints[i], ints[mid]
+		}
+		if ints[mid] > ints[j] {
+			ints[mid], ints[j] = ints[j], ints[mid]
+		}
+
+		// 保存中间值到 j-1 位置，防止被交换覆盖
+		ints[mid], ints[j] = ints[j], ints[mid]
+		pivot := ints[j]
+
+		// 双指针，当遇到小于 pivot 的值时，交换到左边
+		left := i
+		for right := i; right < j; right++ {
+			if ints[right] < pivot {
+				ints[right], ints[left] = ints[left], ints[right]
+				left++
+			}
+		}
+		// 最后将 pivot 放到中间位置
+		ints[left], ints[j] = ints[j], ints[left]
+
+		qsfunc(i, left-1)
+		qsfunc(left+1, j)
+	}
+
+	qsfunc(0, len(ints)-1)
 }
 
 func QuickSort(ints []int) {
@@ -133,7 +232,7 @@ func FindKthLargest(nums []int, k int) int {
 
 func findKthLargestCore(nums []int, n, m int, k int) int {
 	// 找到中间点
-	pivot := partitionDescRandmon(nums, n, m)
+	pivot := partitionDesc(nums, n, m)
 	if k == pivot+1 {
 		return nums[pivot]
 	} else if k < pivot+1 {
@@ -143,27 +242,22 @@ func findKthLargestCore(nums []int, n, m int, k int) int {
 	}
 }
 
-func partitionDescRandmon(nums []int, n, m int) int {
-	// 取随机 pivot
-	i := rand.Int()%(m-n+1) + n
-	nums[i], nums[m] = nums[m], nums[i]
-	return partitionDesc(nums, n, m)
-}
-
 // partition [n,m]获取第x大元素，返回其下标
 func partitionDesc(nums []int, n, m int) int {
+	randi := rand.Int()%(m-n+1) + n
+	nums[randi], nums[m] = nums[m], nums[randi]
 	pivotV := nums[m]
+
 	i, j := n, n
 
-	for ; j <= m; j++ {
-		if nums[j] >= pivotV { // desc
+	for ; j < m; j++ {
+		if nums[j] < pivotV { // esc
 			nums[i], nums[j] = nums[j], nums[i]
 			i++
 		}
 	}
 
-	if i == n {
-		return n
-	}
-	return i - 1
+	nums[i], nums[m] = nums[m], nums[i]
+
+	return i
 }
