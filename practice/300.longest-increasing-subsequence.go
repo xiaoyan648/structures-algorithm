@@ -54,7 +54,7 @@ func lengthOfLIS_Binary(nums []int) int {
 func binarySearch(g []int, target int) int {
 	left, right := 0, len(g)
 	for left < right {
-		mid := left + (right-left)/2
+		mid := (right + left) / 2
 		if g[mid] < target {
 			left = mid + 1
 		} else {

@@ -8,6 +8,8 @@ import (
 )
 
 func TestMinEditCountRecursive(t *testing.T) {
+
+	fmt.Println((3 - 1000) % 2)
 	a := "mitcmu"
 	b := "mtacnu"
 	alen, blen := 6, 6
